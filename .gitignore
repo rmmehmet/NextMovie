@@ -1,0 +1,33 @@
+# ===== BACKEND (Spring Boot) =====
+backend/target/
+backend/*.log
+backend/.idea/
+backend/*.iml
+
+# Maven / Gradle
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/build/
+
+# ===== FRONTEND (React + Vite) =====
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ===== ENV FILES (ÇOK ÖNEMLİ) =====
+.env
+.env.local
+.env.development
+.env.production
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== IDE =====
+.idea/
+.vscode/
+
+# ===== LOGS =====
+*.log
