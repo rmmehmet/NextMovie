@@ -5,11 +5,11 @@
 .dark {
   --bg:          #07070e;
   --left-bg:     #0c0c17;
-  --left-border: rgba(255,255,255,0.06);
+  --left-border: transparent;
   --card:        #11111c;
   --surface:     #181826;
-  --border:      rgba(255,255,255,0.08);
-  --border-em:   rgba(255,255,255,0.14);
+  --border:      rgba(255,255,255,0.04);
+  --border-em:   rgba(255,255,255,0.06);
   --txt:         #e8e8f0;
   --txt2:        rgba(232,232,240,0.48);
   --txt3:        rgba(232,232,240,0.26);
@@ -48,11 +48,31 @@
   --badge-border:rgba(91,77,232,0.18);
 }
 
+/* ── FIX: html/body tam ekran + tema rengi ── */
+/* Tema class'ı auth-page'in kendisinde olduğu için
+   body'yi auth-page'in bg'siyle eşleştiriyoruz */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+}
+
+/* Body arka planını auth-page class'ına göre ayarla */
+body:has(.auth-page.dark) {
+  background: #07070e;
+}
+
+body:has(.auth-page.light) {
+  background: #f3f2ef;
+}
+
 /* ── Page shell ── */
 .auth-page {
   display: grid;
   grid-template-columns: 1fr 420px;
   min-height: 100vh;
+  width: 100%;
   background: var(--bg);
   transition: background 0.3s ease, color 0.3s ease;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -104,7 +124,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 2rem 2.5rem;
+  padding: 1.75rem 2.5rem; /* FIX: üstten padding azaltıldı, 2rem → 1.75rem */
 }
 
 /* Brand */
@@ -112,6 +132,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .brand-icon {
@@ -138,13 +159,13 @@
   color: var(--acc);
 }
 
-/* Hero */
+/* Hero — FIX: dikey boşluklar azaltıldı */
 .hero {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 2.5rem 0 1.5rem;
+  padding: 1.25rem 0 1rem; /* eski: 2.5rem 0 1.5rem */
 }
 
 .hero-badge {
@@ -159,17 +180,17 @@
   font-weight: 600;
   color: var(--acc);
   letter-spacing: 0.03em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.85rem; /* eski: 1.25rem */
   width: fit-content;
 }
 
 .hero-title {
-  font-size: 30px;
+  font-size: 26px; /* eski: 30px */
   font-weight: 700;
   color: var(--txt);
   line-height: 1.25;
-  letter-spacing: -0.6px;
-  margin-bottom: 0.9rem;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.7rem; /* eski: 0.9rem */
 }
 
 .hero-title .accent {
@@ -177,19 +198,19 @@
 }
 
 .hero-sub {
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--txt2);
-  line-height: 1.7;
+  line-height: 1.65;
   max-width: 310px;
 }
 
-/* Feature list */
+/* Feature list — FIX: üst boşluk ve item aralığı azaltıldı */
 .feature-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 1.75rem;
+  gap: 8px; /* eski: 10px */
+  margin-top: 1.25rem; /* eski: 1.75rem */
 }
 
 .feature-list li {
@@ -201,9 +222,9 @@
 }
 
 .feature-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 28px; /* eski: 30px */
+  height: 28px;
+  border-radius: 7px;
   background: var(--acc-soft);
   border: 0.5px solid var(--acc-border);
   display: flex;
@@ -213,16 +234,17 @@
   flex-shrink: 0;
 }
 
-/* Poster strip */
+/* Poster strip — FIX: alt boşluk azaltıldı */
 .poster-strip {
   display: flex;
   gap: 8px;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem; /* eski: 1.75rem */
+  flex-shrink: 0;
 }
 
 .poster {
   flex: 1;
-  height: 54px;
+  height: 48px; /* eski: 54px */
   border-radius: 10px;
   border: 0.5px solid var(--border-em);
   display: flex;
@@ -241,6 +263,7 @@
 .left-footer {
   font-size: 11px;
   color: var(--txt3);
+  flex-shrink: 0;
 }
 
 /* ── Right panel ── */

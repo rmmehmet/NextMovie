@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Login.css";
 
 export default function AuthPage() {
@@ -6,6 +6,21 @@ export default function AuthPage() {
   const [theme, setTheme] = useState("dark");
 
   const isLight = theme === "light";
+
+  // FIX: body arka planını tema ile senkronize et
+  // body:has() CSS'i desteklemeyen eski tarayıcılar için JS fallback
+  useEffect(() => {
+    document.body.style.background = isLight ? "#f3f2ef" : "#07070e";
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+  }, [isLight]);
+
+  // Sayfa kapanınca temizle
+  useEffect(() => {
+    return () => {
+      document.body.style.background = "";
+    };
+  }, []);
 
   return (
     <div className={`auth-page ${isLight ? "light" : "dark"}`}>
@@ -49,12 +64,12 @@ export default function AuthPage() {
           </div>
 
           <div className="poster-strip">
-            <div className="poster p1"><FilmIcon size={22} /></div>
-            <div className="poster p2"><TvIcon size={22} /></div>
-            <div className="poster p3"><TelescopeIcon size={22} /></div>
+            <div className="poster p1"><FilmIcon size={20} /></div>
+            <div className="poster p2"><TvIcon size={20} /></div>
+            <div className="poster p3"><TelescopeIcon size={20} /></div>
           </div>
 
-          <p className="left-footer">© 2025 NextMovie · All rights reserved.</p>
+          <p className="left-footer">© 2026 NextMovie · All rights reserved.</p>
         </div>
       </aside>
 
@@ -224,9 +239,9 @@ const S = ({ children, size = 18 }) => (
 
 const FilmIcon = ({ size }) => <S size={size}><rect x="2" y="2" width="20" height="20" rx="2.18"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></S>;
 const SparkIcon = () => <S size={13}><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5L12 2z"/></S>;
-const BrainIcon = () => <S size={16}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 14.5 2z"/></S>;
-const HeartIcon = () => <S size={16}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></S>;
-const StarIcon = () => <S size={16}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></S>;
+const BrainIcon = () => <S size={15}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 14.5 2z"/></S>;
+const HeartIcon = () => <S size={15}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></S>;
+const StarIcon = () => <S size={15}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></S>;
 const TvIcon = ({ size }) => <S size={size}><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M17 2l-5 5-5-5"/></S>;
 const TelescopeIcon = ({ size }) => <S size={size}><path d="M10 16v5M14 16v5M12 4L3 9l9 5 9-5-9-5z"/><path d="M3 9v7l9 5 9-7V9"/></S>;
 const SunIcon = () => <S size={14}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></S>;
