@@ -5,11 +5,11 @@
 .dark {
   --bg:          #07070e;
   --left-bg:     #0c0c17;
-  --left-border: transparent;
+  --left-border: rgba(255,255,255,0.06);
   --card:        #11111c;
   --surface:     #181826;
-  --border:      rgba(255,255,255,0.04);
-  --border-em:   rgba(255,255,255,0.06);
+  --border:      rgba(255,255,255,0.08);
+  --border-em:   rgba(255,255,255,0.14);
   --txt:         #e8e8f0;
   --txt2:        rgba(232,232,240,0.48);
   --txt3:        rgba(232,232,240,0.26);
@@ -48,31 +48,11 @@
   --badge-border:rgba(91,77,232,0.18);
 }
 
-/* ── FIX: html/body tam ekran + tema rengi ── */
-/* Tema class'ı auth-page'in kendisinde olduğu için
-   body'yi auth-page'in bg'siyle eşleştiriyoruz */
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  width: 100%;
-}
-
-/* Body arka planını auth-page class'ına göre ayarla */
-body:has(.auth-page.dark) {
-  background: #07070e;
-}
-
-body:has(.auth-page.light) {
-  background: #f3f2ef;
-}
-
 /* ── Page shell ── */
 .auth-page {
   display: grid;
   grid-template-columns: 1fr 420px;
   min-height: 100vh;
-  width: 100%;
   background: var(--bg);
   transition: background 0.3s ease, color 0.3s ease;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -124,7 +104,7 @@ body:has(.auth-page.light) {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 1.75rem 2.5rem; /* FIX: üstten padding azaltıldı, 2rem → 1.75rem */
+  padding: 2rem 2.5rem;
 }
 
 /* Brand */
@@ -132,7 +112,6 @@ body:has(.auth-page.light) {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
 }
 
 .brand-icon {
@@ -159,13 +138,13 @@ body:has(.auth-page.light) {
   color: var(--acc);
 }
 
-/* Hero — FIX: dikey boşluklar azaltıldı */
+/* Hero */
 .hero {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1.25rem 0 1rem; /* eski: 2.5rem 0 1.5rem */
+  padding: 2.5rem 0 1.5rem;
 }
 
 .hero-badge {
@@ -180,17 +159,17 @@ body:has(.auth-page.light) {
   font-weight: 600;
   color: var(--acc);
   letter-spacing: 0.03em;
-  margin-bottom: 0.85rem; /* eski: 1.25rem */
+  margin-bottom: 1.25rem;
   width: fit-content;
 }
 
 .hero-title {
-  font-size: 26px; /* eski: 30px */
+  font-size: 30px;
   font-weight: 700;
   color: var(--txt);
   line-height: 1.25;
-  letter-spacing: -0.5px;
-  margin-bottom: 0.7rem; /* eski: 0.9rem */
+  letter-spacing: -0.6px;
+  margin-bottom: 0.9rem;
 }
 
 .hero-title .accent {
@@ -198,19 +177,19 @@ body:has(.auth-page.light) {
 }
 
 .hero-sub {
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--txt2);
-  line-height: 1.65;
+  line-height: 1.7;
   max-width: 310px;
 }
 
-/* Feature list — FIX: üst boşluk ve item aralığı azaltıldı */
+/* Feature list */
 .feature-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* eski: 10px */
-  margin-top: 1.25rem; /* eski: 1.75rem */
+  gap: 10px;
+  margin-top: 1.75rem;
 }
 
 .feature-list li {
@@ -222,9 +201,9 @@ body:has(.auth-page.light) {
 }
 
 .feature-icon {
-  width: 28px; /* eski: 30px */
-  height: 28px;
-  border-radius: 7px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   background: var(--acc-soft);
   border: 0.5px solid var(--acc-border);
   display: flex;
@@ -234,17 +213,16 @@ body:has(.auth-page.light) {
   flex-shrink: 0;
 }
 
-/* Poster strip — FIX: alt boşluk azaltıldı */
+/* Poster strip */
 .poster-strip {
   display: flex;
   gap: 8px;
-  margin-bottom: 1.25rem; /* eski: 1.75rem */
-  flex-shrink: 0;
+  margin-bottom: 1.75rem;
 }
 
 .poster {
   flex: 1;
-  height: 48px; /* eski: 54px */
+  height: 54px;
   border-radius: 10px;
   border: 0.5px solid var(--border-em);
   display: flex;
@@ -263,7 +241,6 @@ body:has(.auth-page.light) {
 .left-footer {
   font-size: 11px;
   color: var(--txt3);
-  flex-shrink: 0;
 }
 
 /* ── Right panel ── */
@@ -551,4 +528,87 @@ body:has(.auth-page.light) {
     align-items: flex-start;
     padding-top: 4rem;
   }
+}
+
+/* ── Google button (tam genişlik, üstte) ── */
+.google-btn {
+  width: 100%;
+  background: var(--inp);
+  border: 0.5px solid var(--border-em);
+  border-radius: 10px;
+  padding: 0.68rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--txt);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.google-btn:hover {
+  background: var(--inp-focus);
+  border-color: var(--border);
+}
+
+/* ── field-row inner fix ── */
+.field-row .field { min-width: 0; }
+.field-row .input-wrap input { width: 100%; }
+
+/* ── Bare input (without input-wrap) ── */
+.field > input {
+  width: 100%;
+  background: var(--inp);
+  border: 0.5px solid var(--border-em);
+  border-radius: 9px;
+  padding: 0.62rem 0.85rem;
+  font-size: 13.5px;
+  color: var(--txt);
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+}
+.field > input::placeholder { color: var(--txt3); }
+.field > input:focus {
+  border-color: var(--acc);
+  background: var(--inp-focus);
+}
+
+/* ── Error message ── */
+.error-msg {
+  font-size: 12px;
+  color: #f87171;
+  background: rgba(248,113,113,0.08);
+  border: 0.5px solid rgba(248,113,113,0.2);
+  border-radius: 7px;
+  padding: 7px 10px;
+  margin-bottom: 0.6rem;
+}
+.light .error-msg {
+  color: #dc2626;
+  background: rgba(220,38,38,0.07);
+  border-color: rgba(220,38,38,0.18);
+}
+
+/* ── Spinner ── */
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── CTA disabled ── */
+.cta-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
 }
