@@ -3,6 +3,7 @@ backend/target/
 backend/*.log
 backend/.idea/
 backend/*.iml
+backend/resources/application.properties
 
 # Maven / Gradle
 backend/.mvn/

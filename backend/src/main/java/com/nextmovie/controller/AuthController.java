@@ -1,5 +1,6 @@
 package com.nextmovie.controller;
 
+import com.nextmovie.dto.AuthResponse;
 import com.nextmovie.dto.LoginRequest;
 import com.nextmovie.dto.RegisterRequest;
 import com.nextmovie.service.AuthService;
@@ -22,7 +23,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public AuthResponse login(@RequestBody LoginRequest request) {
         return authService.login(request);
     }
 }

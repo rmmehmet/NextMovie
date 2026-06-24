@@ -166,19 +166,24 @@ function LoginForm({ onSwitch }) {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState("");
 
-  const handleLogin = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await login(email, password);
-      if (res?.token) localStorage.setItem("token", res.token);
-      window.location.href = "/";
-    } catch (err) {
-      setError("Login failed. Check your email or password.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleLogin = async () => {
+  setLoading(true);
+  setError("");
+  try {
+    const res = await login(email, password);
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("user", JSON.stringify({
+      email: res.email,
+      username: res.username,
+      name: res.name,
+    }));
+    window.location.href = "/";
+  } catch (err) {
+    setError("Login failed. Check your email or password.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="form-body">

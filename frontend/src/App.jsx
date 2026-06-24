@@ -1,14 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login/Login";
+import HomePage from "./pages/HomePage/HomePage";
+
+function PrivateRoute({ children }) {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" replace />;
+}
 
 export default function App() {
   const [theme, setTheme] = useState("dark");
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   return (
-    <Login theme={theme} toggleTheme={toggleTheme} />
+    <BrowserRouter>
+      <Routes>
+        {/* Giriş yapılmamışsa /login'e yönlendir */}
+        <Route path="/login" element={<Login theme={theme} toggleTheme={toggleTheme} />} />
+
+        {/* Korunan rotalar */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <HomePage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Tanımsız tüm rotaları ana sayfaya yönlendir */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
