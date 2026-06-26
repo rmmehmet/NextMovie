@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login/Login";
-import HomePage from "./pages/HomePage/HomePage";
+import Login        from "./pages/Login/Login";
+import HomePage     from "./pages/HomePage/HomePage";
+import MovieDetailPage from "./pages/MovieDetailPage/MovieDetailPage";
+import SettingsPage from "./pages/SettingsPage/SettingsPage";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -10,8 +12,7 @@ function PrivateRoute({ children }) {
 
 export default function App() {
   const [theme, setTheme] = useState("dark");
-
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -20,21 +21,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Giriş yapılmamışsa /login'e yönlendir */}
         <Route path="/login" element={<Login theme={theme} toggleTheme={toggleTheme} />} />
-
-        {/* Korunan rotalar */}
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <HomePage />
-            </PrivateRoute>
-          }
-        />
-
-        {/* Tanımsız tüm rotaları ana sayfaya yönlendir */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/"        element={<PrivateRoute><HomePage /></PrivateRoute>} />
+        <Route path="/movie/:id" element={<PrivateRoute><MovieDetailPage /></PrivateRoute>} />
+        <Route path="/settings"  element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+        <Route path="*"        element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

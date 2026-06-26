@@ -32,8 +32,6 @@ public class TmdbImportService {
         this.restTemplate = new RestTemplate();
     }
 
-    // Uygulama ayağa kalktığında otomatik çalışır
-    // DB zaten doluysa atlar
     @EventListener(ApplicationReadyEvent.class)
     public void importOnStartup() {
         long count = movieRepository.count();
@@ -42,8 +40,8 @@ public class TmdbImportService {
             return;
         }
         log.info("Film verisi bulunamadı, TMDB'den çekiliyor...");
-        importPopular(10);   // 10 sayfa × 20 film = 200 film
-        importTopRated(10);
+        importPopular(250);
+        importTopRated(250);
         log.info("Import tamamlandı. Toplam: {} film", movieRepository.count());
     }
 
@@ -97,7 +95,6 @@ public class TmdbImportService {
         return m;
     }
 
-    // TMDB genre id → isim dönüşümü (sabit liste, API çağrısı gerekmez)
     private String resolveGenreNames(List<Integer> ids) {
         return ids.stream()
                 .map(this::genreName)
@@ -131,8 +128,6 @@ public class TmdbImportService {
         };
     }
 
-    // ── TMDB response DTO'ları ────────────────────────────────
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class TmdbPageResponse {
         public List<TmdbMovieResult> results;
@@ -142,13 +137,13 @@ public class TmdbImportService {
     static class TmdbMovieResult {
         public Integer id;
         public String title;
-        @JsonProperty("original_title")  public String originalTitle;
+        @JsonProperty("original_title")    public String originalTitle;
         public String overview;
-        @JsonProperty("poster_path")     public String posterPath;
-        @JsonProperty("vote_average")    public Double voteAverage;
+        @JsonProperty("poster_path")       public String posterPath;
+        @JsonProperty("vote_average")      public Double voteAverage;
         public Double popularity;
         @JsonProperty("original_language") public String originalLanguage;
-        @JsonProperty("release_date")    public String releaseDate;
-        @JsonProperty("genre_ids")       public List<Integer> genreIds;
+        @JsonProperty("release_date")      public String releaseDate;
+        @JsonProperty("genre_ids")         public List<Integer> genreIds;
     }
 }

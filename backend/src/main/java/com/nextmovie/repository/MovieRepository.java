@@ -17,4 +17,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByTmdbId(Integer tmdbId);
 
     boolean existsByTmdbId(Integer tmdbId);
+
+    // Arama: başlık içinde geçen filmler, popularity'e göre sıralı
+    List<Movie> findTop10ByTitleContainingIgnoreCaseOrderByPopularityDesc(String title);
 }

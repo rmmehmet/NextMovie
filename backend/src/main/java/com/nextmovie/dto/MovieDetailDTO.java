@@ -1,56 +1,22 @@
-package com.nextmovie.entity;
+package com.nextmovie.dto;
 
-import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-@Entity
-@Table(name = "movies")
-public class Movie {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class MovieDetailDTO {
     private Long id;
-
-    @Column(name = "tmdb_id", unique = true, nullable = false)
     private Integer tmdbId;
-
-    @Column(nullable = false, length = 500)
     private String title;
-
-    @Column(columnDefinition = "TEXT")
     private String overview;
-
     private String genres;
-    private String keywords;
-
-    @Column(name = "release_date")
-    private LocalDate releaseDate;
-
-    @Column(name = "poster_path")
     private String posterPath;
-
-    @Column(name = "backdrop_path")
     private String backdropPath;
-
-    @Column(name = "vote_average")
     private Double voteAverage;
-
-    @Column(name = "vote_count")
     private Integer voteCount;
-
-    @Column(name = "original_language", length = 2)
+    private String releaseDate;
     private String originalLanguage;
-
-    private Double popularity;
-
     private Integer runtime;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() { createdAt = LocalDateTime.now(); }
+    private Double popularity;
+    private String trailerKey; // YouTube video key
+    private boolean liked;
+    private boolean inWatchlist;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -62,10 +28,6 @@ public class Movie {
     public void setOverview(String overview) { this.overview = overview; }
     public String getGenres() { return genres; }
     public void setGenres(String genres) { this.genres = genres; }
-    public String getKeywords() { return keywords; }
-    public void setKeywords(String keywords) { this.keywords = keywords; }
-    public LocalDate getReleaseDate() { return releaseDate; }
-    public void setReleaseDate(LocalDate releaseDate) { this.releaseDate = releaseDate; }
     public String getPosterPath() { return posterPath; }
     public void setPosterPath(String posterPath) { this.posterPath = posterPath; }
     public String getBackdropPath() { return backdropPath; }
@@ -74,12 +36,18 @@ public class Movie {
     public void setVoteAverage(Double voteAverage) { this.voteAverage = voteAverage; }
     public Integer getVoteCount() { return voteCount; }
     public void setVoteCount(Integer voteCount) { this.voteCount = voteCount; }
+    public String getReleaseDate() { return releaseDate; }
+    public void setReleaseDate(String releaseDate) { this.releaseDate = releaseDate; }
     public String getOriginalLanguage() { return originalLanguage; }
     public void setOriginalLanguage(String originalLanguage) { this.originalLanguage = originalLanguage; }
-    public Double getPopularity() { return popularity; }
-    public void setPopularity(Double popularity) { this.popularity = popularity; }
     public Integer getRuntime() { return runtime; }
     public void setRuntime(Integer runtime) { this.runtime = runtime; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Double getPopularity() { return popularity; }
+    public void setPopularity(Double popularity) { this.popularity = popularity; }
+    public String getTrailerKey() { return trailerKey; }
+    public void setTrailerKey(String trailerKey) { this.trailerKey = trailerKey; }
+    public boolean isLiked() { return liked; }
+    public void setLiked(boolean liked) { this.liked = liked; }
+    public boolean isInWatchlist() { return inWatchlist; }
+    public void setInWatchlist(boolean inWatchlist) { this.inWatchlist = inWatchlist; }
 }
