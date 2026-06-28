@@ -3,20 +3,51 @@ import { useParams, useNavigate } from "react-router-dom";
 import { movieService } from "../../services/movieService";
 import "./MovieDetailPage.css";
 
-const TMDB_IMG   = "https://image.tmdb.org/t/p/w500";
-const TMDB_BACK  = "https://image.tmdb.org/t/p/w1280";
+const TMDB_IMG  = "https://image.tmdb.org/t/p/w500";
+const TMDB_BACK = "https://image.tmdb.org/t/p/w1280";
+
+const SimilarCard = ({ movie }) => {
+  const navigate = useNavigate();
+  return (
+    <div className="similar-card" onClick={() => navigate(`/movie/${movie.id}`)}>
+      <div className="similar-card__poster-wrap">
+        <img
+          className="similar-card__poster"
+          src={movie.posterPath ? `${TMDB_IMG}${movie.posterPath}` : "/placeholder.png"}
+          alt={movie.title}
+          loading="lazy"
+        />
+        <div className="similar-card__overlay">
+          <span className="similar-card__score">★ {movie.voteAverage?.toFixed(1)}</span>
+        </div>
+      </div>
+      <div className="similar-card__info">
+        <p className="similar-card__title">{movie.title}</p>
+        <p className="similar-card__meta">
+          {movie.releaseDate?.slice(0, 4)} · {movie.genres?.split(",")[0]}
+        </p>
+      </div>
+    </div>
+  );
+};
 
 export default function MovieDetailPage() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
-  const [movie, setMovie]       = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [liked, setLiked]       = useState(false);
-  const [inList, setInList]     = useState(false);
+  const { id }   = useParams();
+  const navigate = useNavigate();
+
+  const [movie, setMovie]           = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [liked, setLiked]           = useState(false);
+  const [inList, setInList]         = useState(false);
   const [showTrailer, setShowTrailer] = useState(false);
+  const [similar, setSimilar]       = useState([]);
+  const [simLoading, setSimLoading] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     setLoading(true);
+    setSimilar([]);
+
     movieService.getDetail(id)
       .then(data => {
         setMovie(data);
@@ -25,6 +56,13 @@ export default function MovieDetailPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    // Benzer filmler ayrı istek
+    setSimLoading(true);
+    movieService.getSimilar(id)
+      .then(data => setSimilar(data))
+      .catch(() => setSimilar([]))
+      .finally(() => setSimLoading(false));
   }, [id]);
 
   const handleLike = async () => {
@@ -42,19 +80,15 @@ export default function MovieDetailPage() {
   };
 
   if (loading) return (
-    <div className="detail-loading">
-      <div className="detail-loading__spinner" />
-    </div>
+    <div className="detail-loading"><div className="detail-loading__spinner" /></div>
   );
 
   if (!movie) return (
-    <div className="detail-loading">
-      <p>Film bulunamadı.</p>
-    </div>
+    <div className="detail-loading"><p>Film bulunamadı.</p></div>
   );
 
-  const genres = movie.genres?.split(",").map(g => g.trim()).filter(Boolean) || [];
-  const year   = movie.releaseDate?.slice(0, 4);
+  const genres  = movie.genres?.split(",").map(g => g.trim()).filter(Boolean) || [];
+  const year    = movie.releaseDate?.slice(0, 4);
   const runtime = movie.runtime
     ? `${Math.floor(movie.runtime / 60)}s ${movie.runtime % 60}dk`
     : null;
@@ -71,15 +105,13 @@ export default function MovieDetailPage() {
 
       {/* NAV */}
       <nav className="detail-nav">
-        <button className="detail-nav__back" onClick={() => navigate(-1)}>
-          ← Geri
-        </button>
+        <button className="detail-nav__back" onClick={() => navigate(-1)}>← Geri</button>
         <span className="detail-nav__logo" onClick={() => navigate("/")}>
           next<span>movie</span>
         </span>
       </nav>
 
-      {/* CONTENT */}
+      {/* MAIN CONTENT */}
       <div className="detail-content">
         {/* POSTER */}
         <div className="detail-poster-wrap">
@@ -104,8 +136,8 @@ export default function MovieDetailPage() {
           <h1 className="detail-title">{movie.title}</h1>
 
           <div className="detail-meta">
-            {year     && <span>{year}</span>}
-            {runtime  && <><span className="detail-meta__dot">·</span><span>{runtime}</span></>}
+            {year    && <span>{year}</span>}
+            {runtime && <><span className="detail-meta__dot">·</span><span>{runtime}</span></>}
             {movie.originalLanguage && (
               <><span className="detail-meta__dot">·</span>
               <span className="detail-meta__lang">{movie.originalLanguage.toUpperCase()}</span></>
@@ -136,13 +168,39 @@ export default function MovieDetailPage() {
               {inList ? "✓ Listede" : "+ Listeye Ekle"}
             </button>
             {movie.trailerKey && (
-              <button className="detail-action-btn detail-action-btn--trailer"
-                onClick={() => setShowTrailer(true)}>
+              <button
+                className="detail-action-btn detail-action-btn--trailer"
+                onClick={() => setShowTrailer(true)}
+              >
                 ▶ Fragman
               </button>
             )}
           </div>
         </div>
+      </div>
+
+      {/* BENZERLİK SEKSİYONU */}
+      <div className="similar-section">
+        <div className="similar-section__header">
+          <h2 className="similar-section__title">Benzer Filmler</h2>
+          <span className="similar-section__badge">AI Önerisi</span>
+        </div>
+
+        {simLoading ? (
+          <div className="similar-row">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="similar-card similar-card--skeleton" />
+            ))}
+          </div>
+        ) : similar.length === 0 ? (
+          <p className="similar-empty">
+            Benzer film bulunamadı. Recommendation servisi çalışıyor mu kontrol edin.
+          </p>
+        ) : (
+          <div className="similar-row">
+            {similar.map(m => <SimilarCard key={m.id} movie={m} />)}
+          </div>
+        )}
       </div>
 
       {/* TRAILER MODAL */}

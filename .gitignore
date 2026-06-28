@@ -16,11 +16,12 @@ frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 
-# ===== ENV FILES (ÇOK ÖNEMLİ) =====
+# ===== ENV FILES  =====
 .env
 .env.local
 .env.development
 .env.production
+venv/
 
 # ===== OS =====
 .DS_Store

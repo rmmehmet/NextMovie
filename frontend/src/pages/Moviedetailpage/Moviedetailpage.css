@@ -166,3 +166,81 @@ body { background: var(--bg-base); color: var(--text-primary); font-family: "Int
   .detail-poster { width: 180px; }
   .detail-nav { padding: 16px; }
 }
+
+/* ─── BENZERLİK SEKSİYONU ───────────────────────────────── */
+.similar-section {
+  position: relative; z-index: 10;
+  padding: 0 40px 80px;
+  max-width: 1200px; margin: 0 auto;
+}
+.similar-section__header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.similar-section__title {
+  font-size: 20px; font-weight: 700; color: var(--text-primary);
+}
+.similar-section__badge {
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: var(--accent-dim); color: var(--accent); letter-spacing: 0.5px;
+}
+.similar-empty {
+  font-size: 14px; color: var(--text-muted); padding: 20px 0;
+}
+
+/* grid: 10 kart yan yana kaydırılabilir */
+.similar-row {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(130px, 1fr));
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-elevated) transparent;
+}
+.similar-row::-webkit-scrollbar { height: 4px; }
+.similar-row::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 4px; }
+
+/* BENZERLİK KARTI */
+.similar-card {
+  border-radius: var(--radius-md); overflow: hidden;
+  background: var(--bg-surface); cursor: pointer;
+  transition: transform 0.2s; flex-shrink: 0;
+}
+.similar-card:hover { transform: translateY(-4px); }
+
+.similar-card__poster-wrap {
+  position: relative; aspect-ratio: 2/3; overflow: hidden;
+}
+.similar-card__poster {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.3s;
+}
+.similar-card:hover .similar-card__poster { transform: scale(1.05); }
+
+.similar-card__overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.85) 100%);
+  display: flex; align-items: flex-end; padding: 8px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.similar-card:hover .similar-card__overlay { opacity: 1; }
+.similar-card__score { font-size: 12px; font-weight: 700; color: var(--accent); }
+
+.similar-card__info { padding: 8px 10px 10px; }
+.similar-card__title {
+  font-size: 12px; font-weight: 600; color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.similar-card__meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+.similar-card--skeleton {
+  aspect-ratio: 2/3; min-height: 200px; border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-elevated) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  .similar-section { padding: 0 16px 60px; }
+  .similar-row { grid-template-columns: repeat(10, 110px); }
+}
