@@ -1,5 +1,7 @@
 package com.nextmovie.dto;
 
+import java.util.List;
+
 public class MovieDetailDTO {
     private Long id;
     private Integer tmdbId;
@@ -14,9 +16,26 @@ public class MovieDetailDTO {
     private String originalLanguage;
     private Integer runtime;
     private Double popularity;
-    private String trailerKey; // YouTube video key
+    private String trailerKey;
     private boolean liked;
     private boolean inWatchlist;
+    private List<CastMember> cast;
+
+    public static class CastMember {
+        private Integer personId;
+        private String name;
+        private String character;
+        private String profilePath;
+
+        public Integer getPersonId() { return personId; }
+        public void setPersonId(Integer personId) { this.personId = personId; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getCharacter() { return character; }
+        public void setCharacter(String character) { this.character = character; }
+        public String getProfilePath() { return profilePath; }
+        public void setProfilePath(String profilePath) { this.profilePath = profilePath; }
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -50,4 +69,6 @@ public class MovieDetailDTO {
     public void setLiked(boolean liked) { this.liked = liked; }
     public boolean isInWatchlist() { return inWatchlist; }
     public void setInWatchlist(boolean inWatchlist) { this.inWatchlist = inWatchlist; }
+    public List<CastMember> getCast() { return cast; }
+    public void setCast(List<CastMember> cast) { this.cast = cast; }
 }

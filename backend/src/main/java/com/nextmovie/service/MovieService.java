@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,11 +25,11 @@ public class MovieService {
 
     private static final String TMDB_BASE = "https://api.themoviedb.org/3";
 
-    private final MovieRepository    movieRepository;
-    private final LikeRepository     likeRepository;
+    private final MovieRepository     movieRepository;
+    private final LikeRepository      likeRepository;
     private final WatchlistRepository watchlistRepository;
-    private final UserRepository     userRepository;
-    private final RestTemplate       restTemplate;
+    private final UserRepository      userRepository;
+    private final RestTemplate        restTemplate;
 
     public MovieService(MovieRepository movieRepository,
                         LikeRepository likeRepository,
@@ -66,9 +67,9 @@ public class MovieService {
         Movie m = movieRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Film bulunamadı: " + id));
 
-        // TMDB'den detay + fragman çek
-        String trailerKey  = fetchTrailerKey(m.getTmdbId());
+        String trailerKey   = fetchTrailerKey(m.getTmdbId());
         String backdropPath = fetchBackdropPath(m.getTmdbId(), m.getBackdropPath());
+        List<MovieDetailDTO.CastMember> cast = fetchCast(m.getTmdbId());
 
         MovieDetailDTO dto = new MovieDetailDTO();
         dto.setId(m.getId());
@@ -85,6 +86,7 @@ public class MovieService {
         dto.setRuntime(m.getRuntime());
         dto.setPopularity(m.getPopularity());
         dto.setTrailerKey(trailerKey);
+        dto.setCast(cast);
 
         if (userId != null) {
             dto.setLiked(likeRepository.existsByUserIdAndMovieId(userId, id));
@@ -94,12 +96,34 @@ public class MovieService {
         return dto;
     }
 
+    private List<MovieDetailDTO.CastMember> fetchCast(Integer tmdbId) {
+        try {
+            String url = TMDB_BASE + "/movie/" + tmdbId + "/credits?api_key=" + apiKey + "&language=tr-TR";
+            TmdbCreditsResponse res = restTemplate.getForObject(url, TmdbCreditsResponse.class);
+            if (res == null || res.cast == null) return Collections.emptyList();
+
+            return res.cast.stream()
+                    .filter(c -> c.profilePath != null)   // resmi olmayanları atla
+                    .limit(15)                             // ilk 15 oyuncu
+                    .map(c -> {
+                        MovieDetailDTO.CastMember member = new MovieDetailDTO.CastMember();
+                        member.setPersonId(c.id);
+                        member.setName(c.name);
+                        member.setCharacter(c.character);
+                        member.setProfilePath(c.profilePath);
+                        return member;
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
     private String fetchTrailerKey(Integer tmdbId) {
         try {
             String url = TMDB_BASE + "/movie/" + tmdbId + "/videos?api_key=" + apiKey + "&language=tr-TR";
             TmdbVideoResponse res = restTemplate.getForObject(url, TmdbVideoResponse.class);
             if (res != null && res.results != null) {
-                // Önce Türkçe trailer ara, yoksa İngilizce
                 return res.results.stream()
                         .filter(v -> "Trailer".equals(v.type) && "YouTube".equals(v.site))
                         .map(v -> v.key)
@@ -132,7 +156,7 @@ public class MovieService {
         return null;
     }
 
-    private MovieDTO toDTO(Movie m) {
+    public MovieDTO toDTO(Movie m) {
         MovieDTO dto = new MovieDTO();
         dto.setId(m.getId());
         dto.setTmdbId(m.getTmdbId());
@@ -144,6 +168,21 @@ public class MovieService {
         dto.setReleaseDate(m.getReleaseDate() != null ? m.getReleaseDate().toString() : null);
         dto.setOriginalLanguage(m.getOriginalLanguage());
         return dto;
+    }
+
+    // ── TMDB response inner classes ──────────────────────────
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class TmdbCreditsResponse {
+        public List<TmdbCastMember> cast;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class TmdbCastMember {
+        public Integer id;
+        public String name;
+        public String character;
+        @JsonProperty("profile_path") public String profilePath;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
