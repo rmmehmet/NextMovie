@@ -350,3 +350,103 @@ a { text-decoration:none; color:inherit; }
 
 .navbar__avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .profile-menu__avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+/* ─── AI ARAMA SEKMESİ ───────────────────────────────────── */
+.ai-search {
+  display: flex; flex-direction: column; gap: 32px;
+}
+
+.ai-search__header { display: flex; flex-direction: column; gap: 8px; }
+.ai-search__title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.ai-search__subtitle { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+/* Arama kutusu */
+.ai-search__box {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg); padding: 6px 6px 6px 18px;
+  transition: border-color 0.2s;
+}
+.ai-search__box:focus-within { border-color: var(--accent); }
+.ai-search__icon { font-size: 18px; flex-shrink: 0; }
+.ai-search__input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 15px; color: var(--text-primary); padding: 8px 0;
+}
+.ai-search__input::placeholder { color: var(--text-muted); }
+.ai-search__btn {
+  padding: 10px 24px; border-radius: var(--radius-md);
+  background: var(--accent); color: #000; font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer; flex-shrink: 0; transition: filter 0.2s;
+  min-width: 72px; display: flex; align-items: center; justify-content: center;
+}
+.ai-search__btn:hover:not(:disabled) { filter: brightness(1.1); }
+.ai-search__btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ai-search__spinner {
+  width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000; border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Örnek sorgular */
+.ai-search__examples { display: flex; flex-direction: column; gap: 12px; }
+.ai-search__examples-label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
+.ai-search__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ai-search__chip {
+  padding: 8px 16px; border-radius: 999px; font-size: 13px;
+  background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.07);
+  color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+}
+.ai-search__chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+/* Sonuçlar */
+.ai-search__results { display: flex; flex-direction: column; gap: 20px; }
+.ai-search__results-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.ai-search__results-label { font-size: 14px; color: var(--text-secondary); }
+.ai-search__results-label strong { color: var(--text-primary); }
+.ai-search__new-btn {
+  padding: 7px 16px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600;
+  background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-secondary); cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.ai-search__new-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.ai-search__loading-text {
+  font-size: 14px; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 4px;
+}
+.ai-search__dots {
+  display: inline-block;
+  animation: dots 1.2s steps(3, end) infinite;
+  width: 20px;
+}
+@keyframes dots {
+  0%   { content: "."; }
+  33%  { content: ".."; }
+  66%  { content: "..."; }
+}
+
+.ai-search__error {
+  display: flex; align-items: flex-start; gap: 12px; padding: 16px;
+  background: rgba(224,85,85,0.08); border: 1px solid rgba(224,85,85,0.2);
+  border-radius: var(--radius-md);
+}
+.ai-search__error span { font-size: 20px; flex-shrink: 0; }
+.ai-search__error p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+/* ─── LIKE BUTTON ON CARD ────────────────────────────────── */
+.movie-card__like-btn {
+  background: rgba(0,0,0,0.5); border: none; border-radius: 50%;
+  width: 32px; height: 32px; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, background 0.15s;
+  position: absolute; top: 8px; right: 8px;
+}
+.movie-card__like-btn:hover { transform: scale(1.2); }
+.movie-card__like-btn.liked { background: rgba(220,50,50,0.3); }
+
+.navbar__avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.profile-menu__avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }

@@ -12,17 +12,21 @@ const GENRES = ["Tümü","Action","Adventure","Animation","Comedy","Crime",
 const MODULE_TABS = [
   { id: "discover",  label: "🎬 Keşfet" },
   { id: "foryou",    label: "✨ Sana Özel" },
-  { id: "cinematic", label: "🏆 Sinema Klasikleri" },
+  { id: "aisearch",  label: "🔍 AI Arama" },
+];
+
+const EXAMPLE_QUERIES = [
+  "90'lar bilim kurgu uzay macerası",
+  "Karanlık atmosferli psikolojik gerilim",
+  "Aile dostu animasyon filmi",
+  "Gerçek olaylara dayanan savaş filmi",
+  "Romantik komedi Paris",
+  "Süper kahraman aksiyon",
 ];
 
 const MovieCard = ({ movie, onLike, likedIds }) => {
   const navigate = useNavigate();
   const liked = likedIds.has(movie.id);
-
-  const handleLike = async (e) => {
-    e.stopPropagation();
-    onLike(movie.id);
-  };
 
   return (
     <div className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
@@ -37,7 +41,7 @@ const MovieCard = ({ movie, onLike, likedIds }) => {
           <span className="movie-card__score">★ {movie.voteAverage?.toFixed(1)}</span>
           <button
             className={`movie-card__like-btn ${liked ? "liked" : ""}`}
-            onClick={handleLike}
+            onClick={e => { e.stopPropagation(); onLike(movie.id); }}
           >
             {liked ? "❤️" : "🤍"}
           </button>
@@ -65,13 +69,139 @@ const Section = ({ title, badge, movies, loading, onLike, likedIds }) => (
         ? Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="movie-card movie-card--skeleton" />
           ))
-        : movies.map((m) => (
+        : movies.map(m => (
             <MovieCard key={m.id} movie={m} onLike={onLike} likedIds={likedIds} />
           ))}
     </div>
   </section>
 );
 
+// ── AI ARAMA SEKMESİ ────────────────────────────────────────
+const AISearchTab = ({ onLike, likedIds }) => {
+  const [query, setQuery]           = useState("");
+  const [results, setResults]       = useState([]);
+  const [loading, setLoading]       = useState(false);
+  const [searched, setSearched]     = useState(false);
+  const [errorMsg, setErrorMsg]     = useState("");
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const handleSearch = async (q) => {
+    const text = q ?? query;
+    if (!text.trim()) return;
+    setQuery(text);
+    setLoading(true);
+    setSearched(true);
+    setErrorMsg("");
+    setResults([]);
+    try {
+      const data = await movieService.semanticSearch(text);
+      if (data.length === 0) setErrorMsg("Sonuç bulunamadı. Farklı bir şey deneyin.");
+      setResults(data);
+    } catch {
+      setErrorMsg("AI servisi şu an erişilemiyor. Lütfen recommendation servisinin çalıştığından emin olun.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="ai-search">
+      {/* Başlık */}
+      <div className="ai-search__header">
+        <h2 className="ai-search__title">AI Film Arama</h2>
+        <p className="ai-search__subtitle">
+          Ne izlemek istediğini tarif et — yapay zeka sana en uygun filmleri bulsun.
+        </p>
+      </div>
+
+      {/* Arama kutusu */}
+      <div className="ai-search__box">
+        <span className="ai-search__icon">🔍</span>
+        <input
+          ref={inputRef}
+          className="ai-search__input"
+          type="text"
+          placeholder="Örn: 'karanlık atmosferli psikolojik gerilim'…"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSearch()}
+        />
+        <button
+          className="ai-search__btn"
+          onClick={() => handleSearch()}
+          disabled={loading || !query.trim()}
+        >
+          {loading ? <span className="ai-search__spinner" /> : "Ara"}
+        </button>
+      </div>
+
+      {/* Örnek sorgular */}
+      {!searched && (
+        <div className="ai-search__examples">
+          <p className="ai-search__examples-label">Örnek aramalar:</p>
+          <div className="ai-search__chips">
+            {EXAMPLE_QUERIES.map(q => (
+              <button
+                key={q}
+                className="ai-search__chip"
+                onClick={() => handleSearch(q)}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sonuçlar */}
+      {searched && (
+        <div className="ai-search__results">
+          {loading ? (
+            <>
+              <p className="ai-search__loading-text">
+                🧠 AI analiz ediyor<span className="ai-search__dots">...</span>
+              </p>
+              <div className="movie-row">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="movie-card movie-card--skeleton" />
+                ))}
+              </div>
+            </>
+          ) : errorMsg ? (
+            <div className="ai-search__error">
+              <span>⚠️</span>
+              <p>{errorMsg}</p>
+            </div>
+          ) : (
+            <>
+              <div className="ai-search__results-header">
+                <p className="ai-search__results-label">
+                  "<strong>{query}</strong>" için {results.length} sonuç bulundu
+                </p>
+                <button className="ai-search__new-btn" onClick={() => {
+                  setSearched(false); setResults([]); setQuery(""); inputRef.current?.focus();
+                }}>
+                  Yeni Arama
+                </button>
+              </div>
+              <div className="movie-row">
+                {results.map(m => (
+                  <MovieCard key={m.id} movie={m} onLike={onLike} likedIds={likedIds} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── ANA SAYFA ───────────────────────────────────────────────
 export default function HomePage() {
   const navigate = useNavigate();
   const [user, setUser]           = useState(null);
@@ -82,14 +212,14 @@ export default function HomePage() {
   const [loading, setLoading]     = useState(true);
   const [likedIds, setLikedIds]   = useState(new Set());
 
-  const [searchQuery, setSearchQuery]   = useState("");
+  const [searchQuery, setSearchQuery]     = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [showDropdown, setShowDropdown]   = useState(false);
-  const searchRef  = useRef(null);
+  const searchRef   = useRef(null);
   const debounceRef = useRef(null);
 
-  const [activeTab, setActiveTab]   = useState("discover");
+  const [activeTab, setActiveTab]     = useState("discover");
   const [activeGenre, setActiveGenre] = useState("Tümü");
   const [showProfile, setShowProfile] = useState(false);
   const profileRef = useRef(null);
@@ -122,7 +252,7 @@ export default function HomePage() {
     if (activeGenre === "Tümü") { setByGenre([]); return; }
     const all = [...popular, ...topRated, ...trending];
     const seen = new Set();
-    const filtered = all.filter((m) => {
+    const filtered = all.filter(m => {
       if (seen.has(m.id)) return false;
       seen.add(m.id);
       return m.genres?.includes(activeGenre);
@@ -148,10 +278,8 @@ export default function HomePage() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target))
-        setShowDropdown(false);
-      if (profileRef.current && !profileRef.current.contains(e.target))
-        setShowProfile(false);
+      if (searchRef.current && !searchRef.current.contains(e.target)) setShowDropdown(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfile(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -175,29 +303,25 @@ export default function HomePage() {
   };
 
   const initials = user ? ((user.username || user.name || "?")[0]).toUpperCase() : "?";
-  const picUrl = user?.profilePicture ? `http://localhost:8080${user.profilePicture}` : null;
+  const picUrl   = user?.profilePicture ? `http://localhost:8080${user.profilePicture}` : null;
 
   const tabContent = () => {
     if (activeTab === "foryou") return (
       <div className="foryou-placeholder">
         <div className="foryou-icon">✨</div>
         <h3>Kişisel Öneriler Yakında</h3>
-        <p>İzlediğin filmler ve arkadaşlarının aktivitelerine göre<br/>sana özel öneriler burada görünecek.</p>
+        <p>İzlediğin filmler ve arkadaşlarının aktivitelerine göre<br />sana özel öneriler burada görünecek.</p>
       </div>
     );
 
-    if (activeTab === "cinematic") return (
-      <div className="foryou-placeholder">
-        <div className="foryou-icon">🏆</div>
-        <h3>Sinema Klasikleri Yakında</h3>
-        <p>En yüksek puanlı klasik filmler burada listelenecek.</p>
-      </div>
+    if (activeTab === "aisearch") return (
+      <AISearchTab onLike={handleLike} likedIds={likedIds} />
     );
 
     return (
       <>
         <div className="genre-bar">
-          {GENRES.map((g) => (
+          {GENRES.map(g => (
             <button key={g} className={`genre-pill ${activeGenre === g ? "active" : ""}`}
               onClick={() => setActiveGenre(g)}>{g}</button>
           ))}
@@ -221,6 +345,7 @@ export default function HomePage() {
 
   return (
     <div className="home-root">
+      {/* NAVBAR */}
       <nav className="navbar">
         <span className="navbar__logo" onClick={() => navigate("/")}>
           next<span className="navbar__logo--accent">movie</span>
@@ -237,7 +362,7 @@ export default function HomePage() {
                 <div className="search-dropdown__loading">Aranıyor…</div>
               ) : searchResults.length === 0 ? (
                 <div className="search-dropdown__empty">Sonuç bulunamadı</div>
-              ) : searchResults.map((m) => (
+              ) : searchResults.map(m => (
                 <div key={m.id} className="search-dropdown__item"
                   onClick={() => { navigate(`/movie/${m.id}`); setShowDropdown(false); setSearchQuery(""); }}>
                   <img className="search-dropdown__poster"
@@ -294,6 +419,7 @@ export default function HomePage() {
         </div>
       </nav>
 
+      {/* HERO */}
       {trending[0] && (
         <div className="hero" style={{ backgroundImage: `url(${TMDB_IMAGE_BASE}${trending[0].posterPath})` }}>
           <div className="hero__gradient" />
@@ -304,14 +430,16 @@ export default function HomePage() {
             <div className="hero__actions">
               <button className="hero__btn hero__btn--primary"
                 onClick={() => navigate(`/movie/${trending[0].id}`)}>▶ Detaylar</button>
-              <button className="hero__btn hero__btn--secondary">+ Listeye ekle</button>
+              <button className="hero__btn hero__btn--secondary"
+                onClick={() => setActiveTab("aisearch")}>🔍 AI Arama</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* MODÜL SEKMELERİ */}
       <div className="module-tabs">
-        {MODULE_TABS.map((t) => (
+        {MODULE_TABS.map(t => (
           <button key={t.id} className={`module-tab ${activeTab === t.id ? "active" : ""}`}
             onClick={() => setActiveTab(t.id)}>{t.label}</button>
         ))}
