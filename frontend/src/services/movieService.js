@@ -8,13 +8,15 @@ export const movieService = {
   getDetail:       (id) => api.get(`/movies/${id}`).then(r => r.data),
   getSimilar:      (movieId, topK = 10) =>
     api.get(`/recommendations/similar/${movieId}`, { params: { topK } }).then(r => r.data),
-
-  // Modül 3 — Doğal dil semantic arama
   semanticSearch:  (q) => api.get("/search/semantic", { params: { q } }).then(r => r.data),
 
   toggleLike:      (movieId) => api.post(`/likes/${movieId}/toggle`).then(r => r.data),
   toggleWatchlist: (movieId) => api.post(`/watchlist/${movieId}/toggle`).then(r => r.data),
   getWatchlist:    () => api.get("/watchlist").then(r => r.data),
+
+  rateMovie:       (movieId, score) =>
+    api.post(`/ratings/${movieId}`, null, { params: { score } }).then(r => r.data),
+  getUserRating:   (movieId) => api.get(`/ratings/${movieId}`).then(r => r.data),
 };
 
 export const profileService = {

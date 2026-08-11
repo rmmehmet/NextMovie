@@ -5,6 +5,7 @@ import com.nextmovie.dto.MovieDetailDTO;
 import com.nextmovie.entity.Movie;
 import com.nextmovie.repository.LikeRepository;
 import com.nextmovie.repository.MovieRepository;
+import com.nextmovie.repository.RatingRepository;
 import com.nextmovie.repository.UserRepository;
 import com.nextmovie.repository.WatchlistRepository;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,22 +23,24 @@ public class MovieService {
 
     @Value("${tmdb.api.key}")
     private String apiKey;
-
     private static final String TMDB_BASE = "https://api.themoviedb.org/3";
 
     private final MovieRepository     movieRepository;
     private final LikeRepository      likeRepository;
     private final WatchlistRepository watchlistRepository;
+    private final RatingRepository    ratingRepository;
     private final UserRepository      userRepository;
     private final RestTemplate        restTemplate;
 
     public MovieService(MovieRepository movieRepository,
                         LikeRepository likeRepository,
                         WatchlistRepository watchlistRepository,
+                        RatingRepository ratingRepository,
                         UserRepository userRepository) {
         this.movieRepository     = movieRepository;
         this.likeRepository      = likeRepository;
         this.watchlistRepository = watchlistRepository;
+        this.ratingRepository    = ratingRepository;
         this.userRepository      = userRepository;
         this.restTemplate        = new RestTemplate();
     }
@@ -91,6 +94,8 @@ public class MovieService {
         if (userId != null) {
             dto.setLiked(likeRepository.existsByUserIdAndMovieId(userId, id));
             dto.setInWatchlist(watchlistRepository.existsByUserIdAndMovieId(userId, id));
+            ratingRepository.findByUserIdAndMovieId(userId, id)
+                    .ifPresent(r -> dto.setUserScore(r.getScore()));
         }
 
         return dto;
@@ -101,10 +106,9 @@ public class MovieService {
             String url = TMDB_BASE + "/movie/" + tmdbId + "/credits?api_key=" + apiKey + "&language=tr-TR";
             TmdbCreditsResponse res = restTemplate.getForObject(url, TmdbCreditsResponse.class);
             if (res == null || res.cast == null) return Collections.emptyList();
-
             return res.cast.stream()
-                    .filter(c -> c.profilePath != null)   // resmi olmayanları atla
-                    .limit(15)                             // ilk 15 oyuncu
+                    .filter(c -> c.profilePath != null)
+                    .limit(15)
                     .map(c -> {
                         MovieDetailDTO.CastMember member = new MovieDetailDTO.CastMember();
                         member.setPersonId(c.id);
@@ -114,9 +118,7 @@ public class MovieService {
                         return member;
                     })
                     .collect(Collectors.toList());
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
+        } catch (Exception e) { return Collections.emptyList(); }
     }
 
     private String fetchTrailerKey(Integer tmdbId) {
@@ -126,18 +128,15 @@ public class MovieService {
             if (res != null && res.results != null) {
                 return res.results.stream()
                         .filter(v -> "Trailer".equals(v.type) && "YouTube".equals(v.site))
-                        .map(v -> v.key)
-                        .findFirst()
+                        .map(v -> v.key).findFirst()
                         .orElseGet(() -> {
                             try {
                                 String enUrl = TMDB_BASE + "/movie/" + tmdbId + "/videos?api_key=" + apiKey + "&language=en-US";
                                 TmdbVideoResponse enRes = restTemplate.getForObject(enUrl, TmdbVideoResponse.class);
-                                if (enRes != null && enRes.results != null) {
+                                if (enRes != null && enRes.results != null)
                                     return enRes.results.stream()
                                             .filter(v -> "Trailer".equals(v.type) && "YouTube".equals(v.site))
-                                            .map(v -> v.key)
-                                            .findFirst().orElse(null);
-                                }
+                                            .map(v -> v.key).findFirst().orElse(null);
                             } catch (Exception ignored) {}
                             return null;
                         });
@@ -170,32 +169,20 @@ public class MovieService {
         return dto;
     }
 
-    // ── TMDB response inner classes ──────────────────────────
-
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class TmdbCreditsResponse {
-        public List<TmdbCastMember> cast;
-    }
+    static class TmdbCreditsResponse { public List<TmdbCastMember> cast; }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class TmdbCastMember {
-        public Integer id;
-        public String name;
-        public String character;
+        public Integer id; public String name; public String character;
         @JsonProperty("profile_path") public String profilePath;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class TmdbVideoResponse {
-        public List<TmdbVideo> results;
-    }
+    static class TmdbVideoResponse { public List<TmdbVideo> results; }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class TmdbVideo {
-        public String key;
-        public String site;
-        public String type;
-    }
+    static class TmdbVideo { public String key; public String site; public String type; }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class TmdbMovieDetail {

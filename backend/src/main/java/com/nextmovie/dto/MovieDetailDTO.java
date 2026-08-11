@@ -19,6 +19,7 @@ public class MovieDetailDTO {
     private String trailerKey;
     private boolean liked;
     private boolean inWatchlist;
+    private int userScore;
     private List<CastMember> cast;
 
     public static class CastMember {
@@ -69,6 +70,8 @@ public class MovieDetailDTO {
     public void setLiked(boolean liked) { this.liked = liked; }
     public boolean isInWatchlist() { return inWatchlist; }
     public void setInWatchlist(boolean inWatchlist) { this.inWatchlist = inWatchlist; }
+    public int getUserScore() { return userScore; }
+    public void setUserScore(int userScore) { this.userScore = userScore; }
     public List<CastMember> getCast() { return cast; }
     public void setCast(List<CastMember> cast) { this.cast = cast; }
 }

@@ -1,0 +1,98 @@
+:root {
+  --bg-base:#0d0d0f; --bg-surface:#16161a; --bg-elevated:#1e1e24;
+  --accent:#e8b84b; --accent-dim:rgba(232,184,75,0.15);
+  --text-primary:#f0f0f0; --text-secondary:#9a9aaa; --text-muted:#55555f;
+  --radius-md:10px; --radius-lg:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg-base);color:var(--text-primary);font-family:"Inter","Segoe UI",sans-serif;}
+
+.watchlist-root{min-height:100vh;background:var(--bg-base);}
+
+.watchlist-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 40px;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.watchlist-nav__back{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
+  color:var(--text-secondary);padding:8px 18px;border-radius:999px;
+  font-size:13px;cursor:pointer;transition:all 0.2s;
+}
+.watchlist-nav__back:hover{background:rgba(255,255,255,0.13);color:var(--text-primary);}
+.watchlist-nav__logo{
+  font-family:"Bebas Neue","Impact",sans-serif;font-size:22px;
+  letter-spacing:2px;cursor:pointer;color:var(--text-primary);
+}
+.watchlist-nav__logo span{color:var(--accent);}
+
+.watchlist-content{max-width:1200px;margin:0 auto;padding:40px 40px 80px;}
+
+.watchlist-header{display:flex;align-items:center;gap:16px;margin-bottom:32px;}
+.watchlist-title{font-size:28px;font-weight:800;color:var(--text-primary);}
+.watchlist-count{
+  font-size:13px;font-weight:600;padding:4px 12px;border-radius:999px;
+  background:var(--accent-dim);color:var(--accent);
+}
+
+.watchlist-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px;
+}
+
+.wl-card{
+  border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface);
+  cursor:pointer;transition:transform 0.2s;
+}
+.wl-card:hover{transform:translateY(-4px);}
+
+.wl-card__poster-wrap{position:relative;aspect-ratio:2/3;overflow:hidden;}
+.wl-card__poster{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.3s;}
+.wl-card:hover .wl-card__poster{transform:scale(1.04);}
+
+.wl-card__overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,0.9) 100%);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  align-items:flex-start;padding:10px;opacity:0;transition:opacity 0.2s;gap:6px;
+}
+.wl-card:hover .wl-card__overlay{opacity:1;}
+.wl-card__score{font-size:13px;font-weight:700;color:var(--accent);}
+.wl-card__remove{
+  width:100%;padding:6px;border-radius:var(--radius-md);
+  background:rgba(220,50,50,0.85);color:#fff;font-size:12px;font-weight:700;
+  border:none;cursor:pointer;transition:background 0.15s;
+}
+.wl-card__remove:hover{background:rgba(220,50,50,1);}
+
+.wl-card__info{padding:10px 10px 12px;}
+.wl-card__title{
+  font-size:13px;font-weight:600;color:var(--text-primary);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.wl-card__meta{font-size:11px;color:var(--text-muted);margin-top:3px;}
+
+.wl-card--skeleton{
+  aspect-ratio:2/3;min-height:240px;border-radius:var(--radius-md);
+  background:linear-gradient(90deg,var(--bg-surface) 25%,var(--bg-elevated) 50%,var(--bg-surface) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+.watchlist-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;padding:80px 20px;text-align:center;
+}
+.watchlist-empty__icon{font-size:56px;}
+.watchlist-empty h3{font-size:22px;font-weight:700;color:var(--text-primary);}
+.watchlist-empty p{font-size:14px;color:var(--text-muted);}
+.watchlist-empty__btn{
+  padding:12px 28px;border-radius:var(--radius-md);background:var(--accent);
+  color:#000;font-size:14px;font-weight:700;border:none;cursor:pointer;
+  margin-top:8px;transition:filter 0.2s;
+}
+.watchlist-empty__btn:hover{filter:brightness(1.1);}
+
+@media(max-width:768px){
+  .watchlist-nav{padding:16px;}
+  .watchlist-content{padding:24px 16px 60px;}
+  .watchlist-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;}
+}

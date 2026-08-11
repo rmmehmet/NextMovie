@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { movieService } from "../../services/movieService";
+import ForYouTab from "../components/ForYouTab";
 import "./HomePage.css";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
@@ -307,11 +308,7 @@ export default function HomePage() {
 
   const tabContent = () => {
     if (activeTab === "foryou") return (
-      <div className="foryou-placeholder">
-        <div className="foryou-icon">✨</div>
-        <h3>Kişisel Öneriler Yakında</h3>
-        <p>İzlediğin filmler ve arkadaşlarının aktivitelerine göre<br />sana özel öneriler burada görünecek.</p>
-      </div>
+      <ForYouTab onLike={handleLike} likedIds={likedIds} />
     );
 
     if (activeTab === "aisearch") return (
