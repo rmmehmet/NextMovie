@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { movieService } from "../../services/movieService";
-import ForYouTab from "../components/ForYouTab";
+import ForYouTab from "../../components/ForYouTab";
 import "./HomePage.css";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";

@@ -1,7 +1,6 @@
 package com.nextmovie.controller;
 
-import com.nextmovie.entity.User;
-import com.nextmovie.repository.UserRepository;
+import com.nextmovie.security.TokenExtractor;
 import com.nextmovie.service.RatingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +12,11 @@ import java.util.Map;
 public class RatingController {
 
     private final RatingService  ratingService;
-    private final UserRepository userRepository;
+    private final TokenExtractor tokenExtractor;
 
-    public RatingController(RatingService ratingService, UserRepository userRepository) {
+    public RatingController(RatingService ratingService, TokenExtractor tokenExtractor) {
         this.ratingService  = ratingService;
-        this.userRepository = userRepository;
+        this.tokenExtractor = tokenExtractor;
     }
 
     @PostMapping("/{movieId}")
@@ -25,7 +24,7 @@ public class RatingController {
             @PathVariable Long movieId,
             @RequestParam int score,
             @RequestHeader("Authorization") String authHeader) {
-        Long userId = extractUserId(authHeader);
+        Long userId = tokenExtractor.extractUserId(authHeader);
         return ResponseEntity.ok(ratingService.rate(userId, movieId, score));
     }
 
@@ -33,13 +32,7 @@ public class RatingController {
     public ResponseEntity<Map<String, Object>> getRating(
             @PathVariable Long movieId,
             @RequestHeader("Authorization") String authHeader) {
-        Long userId = extractUserId(authHeader);
+        Long userId = tokenExtractor.extractUserId(authHeader);
         return ResponseEntity.ok(ratingService.getUserRating(userId, movieId));
-    }
-
-    private Long extractUserId(String authHeader) {
-        String token = authHeader.substring(7);
-        String email = new String(java.util.Base64.getDecoder().decode(token));
-        return userRepository.findByEmail(email).map(User::getId).orElseThrow();
     }
 }

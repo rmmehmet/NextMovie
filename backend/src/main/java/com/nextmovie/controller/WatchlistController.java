@@ -1,8 +1,7 @@
 package com.nextmovie.controller;
 
 import com.nextmovie.dto.MovieDTO;
-import com.nextmovie.entity.User;
-import com.nextmovie.repository.UserRepository;
+import com.nextmovie.security.TokenExtractor;
 import com.nextmovie.service.WatchlistService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,18 +14,18 @@ import java.util.Map;
 public class WatchlistController {
 
     private final WatchlistService watchlistService;
-    private final UserRepository   userRepository;
+    private final TokenExtractor   tokenExtractor;
 
-    public WatchlistController(WatchlistService watchlistService, UserRepository userRepository) {
+    public WatchlistController(WatchlistService watchlistService, TokenExtractor tokenExtractor) {
         this.watchlistService = watchlistService;
-        this.userRepository   = userRepository;
+        this.tokenExtractor   = tokenExtractor;
     }
 
     @PostMapping("/{movieId}/toggle")
     public ResponseEntity<Map<String, Boolean>> toggle(
             @PathVariable Long movieId,
             @RequestHeader("Authorization") String authHeader) {
-        Long userId = extractUserId(authHeader);
+        Long userId = tokenExtractor.extractUserId(authHeader);
         boolean added = watchlistService.toggle(userId, movieId);
         return ResponseEntity.ok(Map.of("inWatchlist", added));
     }
@@ -34,13 +33,7 @@ public class WatchlistController {
     @GetMapping
     public ResponseEntity<List<MovieDTO>> getWatchlist(
             @RequestHeader("Authorization") String authHeader) {
-        Long userId = extractUserId(authHeader);
+        Long userId = tokenExtractor.extractUserId(authHeader);
         return ResponseEntity.ok(watchlistService.getWatchlist(userId));
-    }
-
-    private Long extractUserId(String authHeader) {
-        String token = authHeader.substring(7);
-        String email = new String(java.util.Base64.getDecoder().decode(token));
-        return userRepository.findByEmail(email).map(User::getId).orElseThrow();
     }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { movieService } from "../services/movieService";
+import { movieService } from "../../services/movieService";
 import "./MovieDetailPage.css";
 
 const TMDB_IMG    = "https://image.tmdb.org/t/p/w500";

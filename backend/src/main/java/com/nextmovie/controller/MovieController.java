@@ -2,8 +2,7 @@ package com.nextmovie.controller;
 
 import com.nextmovie.dto.MovieDTO;
 import com.nextmovie.dto.MovieDetailDTO;
-import com.nextmovie.entity.User;
-import com.nextmovie.repository.UserRepository;
+import com.nextmovie.security.TokenExtractor;
 import com.nextmovie.service.MovieService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +13,12 @@ import java.util.List;
 @RequestMapping("/api/movies")
 public class MovieController {
 
-    private final MovieService   movieService;
-    private final UserRepository userRepository;
+    private final MovieService    movieService;
+    private final TokenExtractor  tokenExtractor;
 
-    public MovieController(MovieService movieService, UserRepository userRepository) {
+    public MovieController(MovieService movieService, TokenExtractor tokenExtractor) {
         this.movieService   = movieService;
-        this.userRepository = userRepository;
+        this.tokenExtractor = tokenExtractor;
     }
 
     @GetMapping("/popular")
@@ -46,19 +45,7 @@ public class MovieController {
     public ResponseEntity<MovieDetailDTO> getDetail(
             @PathVariable Long id,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
-        Long userId = extractUserId(authHeader);
+        Long userId = authHeader != null ? tokenExtractor.extractUserId(authHeader) : null;
         return ResponseEntity.ok(movieService.getDetail(id, userId));
-    }
-
-    // Token'dan userId çıkar (Base64 encode = email, email'den user bul)
-    private Long extractUserId(String authHeader) {
-        try {
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
-            String token = authHeader.substring(7);
-            String email = new String(java.util.Base64.getDecoder().decode(token));
-            return userRepository.findByEmail(email).map(User::getId).orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
     }
 }

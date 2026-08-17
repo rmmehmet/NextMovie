@@ -22,3 +22,32 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Cross-env files
+.env
+.env.*
+.env.backend
+application-prod.properties
+application-local.properties
+
+# Java build
+target/
+*.class
+*.jar
+*.war
+
+# Upload folder for backend
+backend/uploads/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+recommendation-service/.env
+recommendation-service/__pycache__/
+
+# OS
+Thumbs.db
+
+# Docker volumes
+volumes/
