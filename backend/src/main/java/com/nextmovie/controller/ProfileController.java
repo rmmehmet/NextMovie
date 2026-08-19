@@ -3,6 +3,7 @@ package com.nextmovie.controller;
 import com.nextmovie.entity.User;
 import com.nextmovie.repository.UserRepository;
 import com.nextmovie.security.TokenExtractor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,14 +17,15 @@ import java.util.UUID;
 @RequestMapping("/api/profile")
 public class ProfileController {
 
-    private static final String UPLOAD_DIR = "uploads/profile-pictures/";
+    @Value("${app.upload-dir:uploads/profile-pictures/}")
+    private String uploadDir;
+
     private final UserRepository userRepository;
     private final TokenExtractor tokenExtractor;
 
     public ProfileController(UserRepository userRepository, TokenExtractor tokenExtractor) {
         this.userRepository = userRepository;
         this.tokenExtractor = tokenExtractor;
-        try { Files.createDirectories(Paths.get(UPLOAD_DIR)); } catch (IOException ignored) {}
     }
 
     @GetMapping
@@ -57,10 +59,16 @@ public class ProfileController {
             @RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization") String authHeader) throws IOException {
         User user = tokenExtractor.extractUser(authHeader);
+
+        // Upload klasörünü oluştur (yoksa)
+        Path uploadPath = Paths.get(uploadDir);
+        Files.createDirectories(uploadPath);
+
         String ext      = getExtension(file.getOriginalFilename());
         String filename = UUID.randomUUID() + ext;
-        Path   path     = Paths.get(UPLOAD_DIR + filename);
+        Path   path     = uploadPath.resolve(filename);
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
         String url = "/api/profile/picture/" + filename;
         user.setProfilePicture(url);
         userRepository.save(user);
@@ -69,10 +77,18 @@ public class ProfileController {
 
     @GetMapping("/picture/{filename}")
     public ResponseEntity<byte[]> servePicture(@PathVariable String filename) throws IOException {
-        Path path = Paths.get(UPLOAD_DIR + filename);
+        // Güvenlik: path traversal engelle
+        if (filename.contains("..") || filename.contains("/")) {
+            return ResponseEntity.badRequest().build();
+        }
+        Path path = Paths.get(uploadDir).resolve(filename);
+        if (!Files.exists(path)) return ResponseEntity.notFound().build();
+
         byte[] bytes = Files.readAllBytes(path);
         String contentType = filename.endsWith(".png") ? "image/png" : "image/jpeg";
-        return ResponseEntity.ok().header("Content-Type", contentType).body(bytes);
+        return ResponseEntity.ok()
+                .header("Content-Type", contentType)
+                .body(bytes);
     }
 
     private String getExtension(String filename) {
